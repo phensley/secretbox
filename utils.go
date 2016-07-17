@@ -69,6 +69,6 @@ func obtainShamirValues() []byte {
 
 func makeNaclKey(key []byte) (nonce [24]byte, eKey [32]byte) {
 	copy(nonce[:], key[:24])
-	copy(eKey[:], key[:24])
+	copy(eKey[:], key[24:])
 	return
 }
