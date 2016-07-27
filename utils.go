@@ -1,74 +1,125 @@
 package main
 
 import (
-	"bufio"
-	"crypto/rand"
+	crand "crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/hashicorp/vault/shamir"
 )
 
-func canReadFile(fileName string) bool {
-	file, err := os.Open(fileName)
+var (
+	once sync.Once
+)
+
+// ShamirParams represents parameters needed to generate a new
+// encryption key
+type ShamirParams struct {
+	Parts     int // total parts to split key into
+	Threshold int // number of parts required to decrypt
+}
+
+// ShamirKey represents a key that has been split into N parts
+// where any M are required to encrypt / decrypt.
+type ShamirKey struct {
+	Key   [56]byte
+	Parts [][]byte
+}
+
+func generateShamirKey(params *ShamirParams) *ShamirKey {
+	key := generateNaclKey()
+	parts, err := shamir.Split(key[:], params.Parts, params.Threshold)
+	if err != nil {
+		log.Fatalln("Unable to split key", err)
+	}
+	return &ShamirKey{key, parts}
+}
+
+func displayShamirKey(key *ShamirKey, encoding string) {
+	for i := range key.Parts {
+		displayShamirKeyPart(i, key.Parts[i], encoding)
+	}
+}
+
+func displayShamirKeyPart(index int, part []byte, encoding string) {
+	fmt.Printf(" [%d] %s\n", index+1, encode(part, encoding))
+}
+
+func generateNaclKey() [56]byte {
+	var key [56]byte
+	fillRandomBytes(key[:])
+	return key
+}
+
+func splitNaclKey(naclKey [56]byte) ([24]byte, [32]byte) {
+	var nonce [24]byte
+	var key [32]byte
+	copy(nonce[:], naclKey[:24])
+	copy(key[:], naclKey[24:])
+	return nonce, key
+}
+
+func fillRandomBytes(raw []byte) {
+	if _, err := io.ReadFull(crand.Reader, raw); err != nil {
+		log.Panicln(err)
+	}
+}
+
+func encode(part []byte, enc string) string {
+	switch enc {
+	case encodingHEX:
+		return hex.EncodeToString(part)
+	default:
+		return base64.StdEncoding.EncodeToString(part)
+	}
+}
+
+func decode(part, enc string) ([]byte, error) {
+	switch enc {
+	case encodingHEX:
+		return hex.DecodeString(part)
+	default:
+		return base64.StdEncoding.DecodeString(part)
+	}
+}
+
+// Check if the given path can be read
+func canReadFile(path string) bool {
+	file, err := os.Open(path)
 	defer file.Close()
 	return err == nil
 }
 
-func generateEncryptionKey() []byte {
-	encryptionKey := make([]byte, 56) // Nonce + Encryption Key
-	if _, err := io.ReadFull(rand.Reader, encryptionKey); err != nil {
-		log.Panicln(err)
-	}
-	return encryptionKey
+// Ensure the path exists and is accessible
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
-func printShamirValues(key []byte) {
-	secretBytes, err := shamir.Split(key, 5, 3)
+// Exit if the value is empty string
+func exitOnEmpty(msg, value string) {
+	if value == "" {
+		exit(1, msg)
+	}
+}
+
+// Exit if the error value is non-nil
+func exitOnError(msg string, err error) {
 	if err != nil {
-		log.Fatalln("Unable to split key ", err)
-	}
-
-	for x := range secretBytes {
-		fmt.Println(x+1, hex.EncodeToString(secretBytes[x]))
+		exit(1, msg, err)
 	}
 }
 
-func obtainShamirValues() []byte {
-	shamirValues := make([][]byte, 3)
-
-	stdinReader := bufio.NewReader(os.Stdin)
-	fmt.Println("Please enter at least 3 Shamir secret values")
-
-	for i := 0; i < 3; i++ {
-		text, err := stdinReader.ReadString('\n')
-
-		if err != nil {
-			log.Fatalln("Unable to read shamir secret", err)
-		}
-
-		theBytes, err := hex.DecodeString(text[:len(text)-1]) // Remove newline
-
-		if err != nil {
-			log.Fatalln("Unable to decode hex", err, text)
-		}
-		shamirValues[i] = theBytes
+// Exit with the given code. Prints ERROR header if code != 0
+func exit(code int, msg ...interface{}) {
+	if code != 0 {
+		fmt.Printf("ERROR: ")
 	}
-
-	key, err := shamir.Combine(shamirValues)
-	if err != nil {
-		log.Fatalln("Unable to obtain key", err)
-	}
-
-	return key
-
-}
-
-func makeNaclKey(key []byte) (nonce [24]byte, eKey [32]byte) {
-	copy(nonce[:], key[:24])
-	copy(eKey[:], key[24:])
-	return
+	fmt.Println(msg...)
+	os.Exit(code)
 }

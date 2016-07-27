@@ -8,3 +8,8 @@ import:
   version: bc89c496413265e715159bdc8478ee9a92fdc265
   subpackages:
   - nacl/secretbox
+- package: github.com/spf13/cobra
+  version: f62e98d28ab7ad31d707ba837a966378465c7b57
+- package: gopkg.in/readline.v1
+  version: v1.4
+- package: github.com/google/shlex
