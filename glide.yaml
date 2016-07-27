@@ -1,0 +1,10 @@
+package: stash.nyc.squarespace.net/security/secretbox
+import:
+- package: github.com/hashicorp/vault
+  version: 0.6.0-rebuild
+  subpackages:
+  - shamir
+- package: golang.org/x/crypto
+  version: bc89c496413265e715159bdc8478ee9a92fdc265
+  subpackages:
+  - nacl/secretbox

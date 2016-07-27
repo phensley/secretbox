@@ -1,0 +1,14 @@
+hash: 71707b2dfb99a287ab604e67eedf4c3d047786bb8279975dad0fc6e3b29f0abf
+updated: 2016-07-27T10:06:39.568766563-04:00
+imports:
+- name: github.com/hashicorp/vault
+  version: d2d0aa07d079836c9a5bd258479b019ca00eb6b8
+  subpackages:
+  - shamir
+- name: golang.org/x/crypto
+  version: bc89c496413265e715159bdc8478ee9a92fdc265
+  subpackages:
+  - nacl/secretbox
+  - poly1305
+  - salsa20/salsa
+testImports: []
