@@ -72,19 +72,19 @@ func fillRandomBytes(raw []byte) {
 
 func encode(part []byte, enc string) string {
 	switch enc {
-	case encodingHEX:
-		return hex.EncodeToString(part)
-	default:
+	case encodingBASE64:
 		return base64.StdEncoding.EncodeToString(part)
+	default:
+		return hex.EncodeToString(part)
 	}
 }
 
 func decode(part, enc string) ([]byte, error) {
 	switch enc {
-	case encodingHEX:
-		return hex.DecodeString(part)
-	default:
+	case encodingBASE64:
 		return base64.StdEncoding.DecodeString(part)
+	default:
+		return hex.DecodeString(part)
 	}
 }
 

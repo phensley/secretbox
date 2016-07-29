@@ -49,7 +49,7 @@ func init() {
 	addFlags := func(cmd *cobra.Command, op string) {
 		cmd.Flags().StringVarP(&input, "input", "i", "", fmt.Sprintf("file to %s", op))
 		cmd.Flags().StringVarP(&output, "output", "o", "", fmt.Sprintf("destination for %sed file", op))
-		cmd.Flags().StringVarP(&encoding, "encoding", "e", "base64", "key encoding to use (hex or base64)")
+		cmd.Flags().StringVarP(&encoding, "encoding", "e", encodingHEX, "key encoding to use (hex or base64)")
 	}
 
 	addFlags(cmdEncrypt, "encrypt")
