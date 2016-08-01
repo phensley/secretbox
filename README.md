@@ -1,27 +1,78 @@
-# keylesscrypto
-This is an example of using the Shamir secret sharing algorithm to encrypt something  
+
+# secretbox
 
 
-# Example
+## Encrypt
 
-## Encryption
+    $ echo "hello world" >foo.txt
+    $ secretbox encrypt -p 4 -t 2 -i foo.txt -o foo.crypted -e base64
 
-```
-$ ./keylesscrypto -encrypt -file thefile
-1 9f7a0527976242c1f966162ecb2bc8a80759f41903fbb39f2096a246546e2e4deae6cc630cca7ebc93e7eddccb324011c85ee986165f0ec501
-2 61dbbc284c88339adfa3f8854f96687b0f2af5de54df8db2531598dac7b0ce38ec798ecfff6b16bb093b237e06f9662a2bb66bf22f450b6f02
-3 05b67ba5cf893e158532f40325a37a7dd427d064e8c1eae921f52f64d05c3f0d7c6b7b77c05a1b0ae647231f951e78d39c3c54fbd40acf6b03
-4 87ccbf8fab27349456f0001a8eb0cb5682233a1164890c05e966d9b3ce0f7050cf674f144e255e6b60bb7f2473443edb53bf96d2cebb002804
-5 e3a178022826391b0c610c9ce485d950592e1fabd8976b5e9b866e0dd9e381655f75baac711453da8fc77f45e0a32022e435a9db35f4c42c05
-```
+	Generated secret key in 4 parts with thresdhold 2:
+
+	 [1] GfrtqFq8sYWCWggF5cO8EVjFAzpIA18p7CeqC9IyovCgp+yBW1v61ikQMGpyuwhVZTKVdNlEgsAB
+	 [2] uMgk9K4nPaWXNV/soSyTdDHRrbnXsKpN4uzGc0zKx4YG7k21WGWu91sFz0fseuuwFS0xwndIq6YC
+	 [3] Li9jwAunsExtEJtCnYB/VxbdPjGiKPmYEVziW89r5F1kINtQWYZr6HX/mlxvzEMazNGkWeRMRYQD
+	 [4] 4aytTF0KPuW96/ElKenNvuP56qTyzVuF/mEeg2shDWpRfBTdXhkGtb8vKh3L4zZh9RNitTBQ+WoE
+
+	Encrypting to 'foo.crypted'
+
+	Success!
 
 
-## Decryption
+## Decrypt
 
-```
-$ ./keylesscrypto -decrypt -file thefileencrypted
-Please enter at least 3 Shamir secret values
-4d46bd5af3f8692ca74d50dc1542c103a2a0df01e53840b0f3a30e9e83a09fa5a254b4b33dcfa5c2f1f88e94e2130aabe2b3e9a8a6e7399001
-03f46a9f957c0cb464a8baec10052d3c4c23d10ae38b952f73ac5853050539677bf9daab27b1ecbe45a7e962382fd341c035d7d3455c008c03
-8302ebd4ca5df7b627d31d5aa5c2eb5d5f0774ee6e75472cdb1ea5a28e9b90c38c48613d83e017e0f59a487bef9126e525d34ec26182a51605
-```
+	$ secretbox decrypt -i foo.crypted -o foo.decrypted -e base64
+
+Interactively enter the Shamir secrets and decrypt the file:
+
+	This interactive shell will allow you to enter the key parts.
+
+	Commands:
+
+	 add <part>    - adds a key part
+	 list          - view the parts that have been entered
+	 del <num>     - deletes the part by #
+	 done          - indicate you have entered parts and are ready to decrypt
+
+	 exit          - exit immediately without decrypting
+	 help          - display this message
+
+	>>
+
+Add at least `threshold` parts:
+
+	>> add uMgk9K4nPaWXNV/soSyTdDHRrbnXsKpN4uzGc0zKx4YG7k21WGWu91sFz0fseuuwFS0xwndIq6YC
+	add: uMgk9K4nPaWXNV/soSyTdDHRrbnXsKpN4uzGc0zKx4YG7k21WGWu91sFz0fseuuwFS0xwndIq6YC
+
+	>> add 4aytTF0KPuW96/ElKenNvuP56qTyzVuF/mEeg2shDWpRfBTdXhkGtb8vKh3L4zZh9RNitTBQ+WoE
+	add: 4aytTF0KPuW96/ElKenNvuP56qTyzVuF/mEeg2shDWpRfBTdXhkGtb8vKh3L4zZh9RNitTBQ+WoE
+
+Use up-arrow / `del` to edit / re-enter a part:
+
+	>> list
+	 [1] uMgk9K4nPaWXNV/soSyTdDHRrbnXsKpN4uzGc0zKx4YG7k21WGWu91sFz0fseuuwFS0xwndIq6YC
+	 [2] 4aytTF0KPuW96/ElKenNvuP56qTyzVuF/mEeg2shDWpRfBTdXhkGtb8vKh3L4zZh9RNitTBQ+WoE
+
+	>> del 2
+	deleting key at index 2
+
+	>> list
+	 [1] uMgk9K4nPaWXNV/soSyTdDHRrbnXsKpN4uzGc0zKx4YG7k21WGWu91sFz0fseuuwFS0xwndIq6YC
+
+	>> add Li9jwAunsExtEJtCnYB/VxbdPjGiKPmYEVziW89r5F1kINtQWYZr6HX/mlxvzEMazNGkWeRMRYQD
+	add: Li9jwAunsExtEJtCnYB/VxbdPjGiKPmYEVziW89r5F1kINtQWYZr6HX/mlxvzEMazNGkWeRMRYQD
+
+	>> list
+	 [1] uMgk9K4nPaWXNV/soSyTdDHRrbnXsKpN4uzGc0zKx4YG7k21WGWu91sFz0fseuuwFS0xwndIq6YC
+	 [2] Li9jwAunsExtEJtCnYB/VxbdPjGiKPmYEVziW89r5F1kINtQWYZr6HX/mlxvzEMazNGkWeRMRYQD
+
+When ready, type `done` to decrypt:
+
+	>> done
+	2 keys entered. validating.
+
+	Success!
+
+	$ cat foo.decrypted
+	hello world
+
