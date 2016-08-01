@@ -1,6 +1,8 @@
 
 # secretbox
 
+Encrypt / decrypt files using Shamir secret sharing.
+
 
 ## Encrypt
 
@@ -75,4 +77,8 @@ When ready, type `done` to decrypt:
 
 	$ cat foo.decrypted
 	hello world
+
+## Acknowledgements
+
+Derived from [levigross/keylesscrypto](https://github.com/levigross/keylesscrypto)
 
