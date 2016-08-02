@@ -1,6 +1,7 @@
 package main
 
 import (
+    "bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/nacl/secretbox"
+	"golang.org/x/crypto/openpgp"
 )
 
 const (
@@ -39,11 +41,13 @@ var (
 	input     string
 	output    string
 	encoding  string
+	keyring   string
 )
 
 func init() {
 	cmdEncrypt.Flags().IntVarP(&parts, "parts", "p", 5, "total parts to split key into")
 	cmdEncrypt.Flags().IntVarP(&threshold, "threshold", "t", 3, "minimum parts needed to decrypt")
+	cmdEncrypt.Flags().StringVarP(&keyring, "keyring", "k", "", "PGP keyring to encrypt secrets")
 
 	// Flags common to both encrypt / decrypt
 	addFlags := func(cmd *cobra.Command, op string) {
@@ -67,6 +71,15 @@ func runEncrypt(cmd *cobra.Command, args []string) {
 	checkEncoding()
 	checkFiles()
 
+	var entities openpgp.EntityList
+	if keyring != "" {
+		data, err := ioutil.ReadFile(keyring)
+		exitOnError("Read PGP keyring", err)
+
+		entities, err = openpgp.ReadArmoredKeyRing(bytes.NewReader(data))
+		exitOnError("Parse PGP keyring", err)
+	}
+
 	plain, err := ioutil.ReadFile(input)
 	exitOnError("Reading input file", err)
 
@@ -76,15 +89,42 @@ func runEncrypt(cmd *cobra.Command, args []string) {
 	}
 	shamirKey := generateShamirKey(params)
 
-	fmt.Printf("Generated secret key in %d parts with thresdhold %d:\n\n", parts, threshold)
-	displayShamirKey(shamirKey, encoding)
-
 	fmt.Printf("\nEncrypting to '%s'\n", output)
-
 	nonce, key := splitNaclKey(shamirKey.Key)
 	crypted := secretbox.Seal(nil, plain, &nonce, &key)
 	err = ioutil.WriteFile(output, crypted, os.FileMode(400))
 	exitOnError("Failed to write output file:", err)
+
+	fmt.Printf("Encrypted using secret key in %d parts with threshold %d:\n\n", parts, threshold)
+	if len(entities) == 0 {
+		displayShamirKey(shamirKey, encoding)
+
+	} else {
+		if len(entities) != len(shamirKey.Parts) {
+			exit(1, fmt.Sprintf("# of secrets %d != # of PGP keys %d", len(entities), len(shamirKey.Parts)))
+		}
+
+		// Encrypt each secret with a PGP recipient, then display
+		for i, part := range shamirKey.Parts {
+			key := entities[i]
+			fmt.Printf("Encrypting secret %d for recipient:\n", i+1)
+			for _, identity := range key.Identities {
+				fmt.Println(" -->", identity.Name)
+			}
+			fmt.Println()
+
+			encoded := fmt.Sprintf("%s\n", encode(part, encoding))
+			crypted, err := encryptPGP([]byte(encoded), key)
+			exitOnError("PGP encrypt", err)
+
+			armored, err := armorPGP(crypted)
+			exitOnError("PGP armor", err)
+
+			fmt.Println(armored)
+			fmt.Println()
+		}
+	}
+
 	fmt.Println("\nSuccess!")
 }
 
