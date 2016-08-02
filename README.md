@@ -78,6 +78,54 @@ When ready, type `done` to decrypt:
 	$ cat foo.decrypted
 	hello world
 
+## Encrypting secrets using a PGP keyring
+
+Create an ASCII-armored keyring containing the PGP keys for the recipients of the secrets.
+If you have the public keys but don't have them on a keyring, you can create a temporary
+keyring:
+
+    $ gpg --no-default-keyring --keyring ./recipients.gpg --import bob-pub.asc alice-pub.asc bill-pub.asc
+
+Then export the list of recipients you want to receive the secrets:
+
+    $ gpg --no-default-keyring --keyring ./recipients.gpg --export -a \
+		bob@example.com alice@example.com bill@example.com >keyring.asc
+
+Finally, use `secretbox` to encrypt a file, and then encrypt the secrets for the recipients.
+
+Note: The number of secret parts must equal the number of keys in the keyring.  In this case we're
+splitting the secret into 3 parts and have 3 recipients.
+
+    $ secretbox encrypt -p 3 -t 2 -i foo.txt -o foo.crypted -k keyring.asc >secrets.txt
+	$ cat secrets.txt
+
+	Encrypting to 'foo.crypted'
+	Encrypted using secret key in 3 parts with threshold 2:
+
+	Encrypting secret 1 for recipient:
+	 --> Bob Jones <bob@example.com>
+
+	-----BEGIN PGP MESSAGE-----
+	...
+	-----END PGP MESSAGE-----
+
+	Encrypting secret 2 for recipient:
+	 --> Alice Smith <alice@example.com>
+
+	-----BEGIN PGP MESSAGE-----
+	...
+	-----END PGP MESSAGE-----
+
+	Encrypting secret 2 for recipient:
+	 --> Bill Davis <bill@example.com>
+
+	-----BEGIN PGP MESSAGE-----
+	...
+	-----END PGP MESSAGE-----
+
+Now you can snip out each encrypted message and send it to the recipients.
+
+
 ## Acknowledgements
 
 Derived from [levigross/keylesscrypto](https://github.com/levigross/keylesscrypto)
