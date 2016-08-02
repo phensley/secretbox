@@ -116,7 +116,7 @@ splitting the secret into 3 parts and have 3 recipients.
 	...
 	-----END PGP MESSAGE-----
 
-	Encrypting secret 2 for recipient:
+	Encrypting secret 3 for recipient:
 	 --> Bill Davis <bill@example.com>
 
 	-----BEGIN PGP MESSAGE-----
