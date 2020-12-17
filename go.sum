@@ -1,0 +1,13 @@
+github.com/google/shlex v0.0.0-20150127133951-6f45313302b9 h1:JM174NTeGNJ2m/oLH3UOWOvWQQKd+BoL3hcSCUWFLt0=
+github.com/google/shlex v0.0.0-20150127133951-6f45313302b9/go.mod h1:RpwtwJQFrIEPstU94h88MWPXP2ektJZ8cZ0YntAmXiE=
+github.com/hashicorp/vault v0.6.0-rebuild h1:TgNxIRkq2CS8lwEkVZRSnVKGn6X1ONkoJkaFvYXMN9s=
+github.com/hashicorp/vault v0.6.0-rebuild/go.mod h1:KfSyffbKxoVyspOdlaGVjIuwLobi07qD1bAbosPMpP0=
+github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
+github.com/spf13/cobra v0.0.0-20160722081547-f62e98d28ab7 h1:vX79RLf8hJqzYiv0FVgbIqSD76lK4dTIoIN29Kc4MXo=
+github.com/spf13/cobra v0.0.0-20160722081547-f62e98d28ab7/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3XqQ=
+github.com/spf13/pflag v0.0.0-20160718215057-1560c1005499 h1:nQ2B7s3aN31rDPdAzwTv4uc+C5U8NnW/Di/v+l3PW5I=
+github.com/spf13/pflag v0.0.0-20160718215057-1560c1005499/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
+golang.org/x/crypto v0.0.0-20160725121503-bc89c4964132 h1:Tt+/1suMAOLOkhBzxZmYsQcgxIfyI39+QAg88+L8LHs=
+golang.org/x/crypto v0.0.0-20160725121503-bc89c4964132/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
+gopkg.in/readline.v1 v1.0.0-20160726135117-62c6fe619375 h1:hPki/oSSWOLiI9Gc9jyIoj33O3j29fUc9PlLha2yDj0=
+gopkg.in/readline.v1 v1.0.0-20160726135117-62c6fe619375/go.mod h1:lNEQeAhU009zbRxng+XOj5ITVgY24WcbNnQopyfKoYQ=
